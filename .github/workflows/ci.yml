@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  backend:
+    name: Backend quality
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --all-groups
+      - run: uv run pytest
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+
+  extension:
+    name: Extension quality
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/extension
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: apps/extension/package-lock.json
+      - run: npm ci
+      - run: npm run compile
+      - run: npm run lint
+      - run: npm run format:check
