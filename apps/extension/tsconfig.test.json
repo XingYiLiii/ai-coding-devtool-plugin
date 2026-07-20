@@ -10,8 +10,10 @@
     "src/backend-health-service.ts",
     "src/backend-status.ts",
     "src/explain-code-command.ts",
+    "src/generate-plan-command.ts",
     "test/backend-client.test.ts",
     "test/backend-health.test.ts",
-    "test/explain-code-command.test.ts"
+    "test/explain-code-command.test.ts",
+    "test/generate-plan-command.test.ts"
   ]
 }

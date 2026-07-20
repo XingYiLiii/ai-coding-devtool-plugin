@@ -75,6 +75,42 @@ test("posts a typed Explain Code request", async () => {
   assert.equal(result.summary, "Prints a value.");
 });
 
+test("posts a typed Development Plan request", async () => {
+  let requestedUrl = "";
+  let requestBody = "";
+  const fetchImplementation: FetchImplementation = async (input, init) => {
+    requestedUrl = input;
+    assert.equal(init?.method, "POST");
+    requestBody = String(init?.body);
+    return new Response(
+      JSON.stringify({
+        requirement_understanding: "Add a profile endpoint.",
+        assumptions: [],
+        affected_files: [],
+        implementation_steps: ["Add the route."],
+        validation_steps: ["Add a test."],
+        risks: [],
+        out_of_scope: [],
+      }),
+      { status: 200 },
+    );
+  };
+  const client = new BackendClient({
+    baseUrl: "http://127.0.0.1:8000",
+    fetchImplementation,
+  });
+
+  const result = await client.generateDevelopmentPlan({
+    request_description: "Add a profile endpoint.",
+  });
+
+  assert.equal(requestedUrl, "http://127.0.0.1:8000/api/v1/development-plans");
+  assert.deepEqual(JSON.parse(requestBody), {
+    request_description: "Add a profile endpoint.",
+  });
+  assert.deepEqual(result.implementation_steps, ["Add the route."]);
+});
+
 test("maps timeout to a backend client error", async () => {
   const client = new BackendClient({
     baseUrl: "http://127.0.0.1:8000",

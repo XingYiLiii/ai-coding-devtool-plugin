@@ -6,6 +6,7 @@ import {
   registerExplainCodeCommand,
   type ExplainCodeSelection,
 } from "./explain-code-command";
+import { registerGeneratePlanCommand } from "./generate-plan-command";
 import { getBackendStatusPresentation } from "./backend-status";
 
 const outputChannelName = "AI Coding Devtool";
@@ -28,6 +29,20 @@ export function activate(context: vscode.ExtensionContext): void {
       client: backendClient,
       outputChannel,
       showWarningMessage: (message) => void vscode.window.showWarningMessage(message),
+      showInformationMessage: (message) =>
+        void vscode.window.showInformationMessage(message),
+      showErrorMessage: (message) => void vscode.window.showErrorMessage(message),
+    }),
+    registerGeneratePlanCommand({
+      commands: vscode.commands,
+      getRequestDescription: () =>
+        vscode.window.showInputBox({
+          prompt: "Describe the development work to plan.",
+          placeHolder: "For example: Add a profile endpoint.",
+          ignoreFocusOut: true,
+        }),
+      client: backendClient,
+      outputChannel,
       showInformationMessage: (message) =>
         void vscode.window.showInformationMessage(message),
       showErrorMessage: (message) => void vscode.window.showErrorMessage(message),

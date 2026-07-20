@@ -17,6 +17,20 @@ export interface ExplainCodeResult {
   risks: string[];
 }
 
+export interface DevelopmentPlanRequest {
+  request_description: string;
+}
+
+export interface DevelopmentPlanResult {
+  requirement_understanding: string;
+  assumptions: string[];
+  affected_files: string[];
+  implementation_steps: string[];
+  validation_steps: string[];
+  risks: string[];
+  out_of_scope: string[];
+}
+
 export type BackendClientErrorKind =
   "backend" | "cancelled" | "invalid_response" | "network" | "timeout";
 
@@ -92,6 +106,24 @@ export class BackendClient {
       throw new BackendClientError(
         "invalid_response",
         "Backend returned an invalid code explanation.",
+      );
+    }
+    return response;
+  }
+
+  public async generateDevelopmentPlan(
+    request: DevelopmentPlanRequest,
+    signal?: AbortSignal,
+  ): Promise<DevelopmentPlanResult> {
+    const response = await this.request<unknown>("/api/v1/development-plans", {
+      method: "POST",
+      body: request,
+      signal,
+    });
+    if (!isDevelopmentPlanResult(response)) {
+      throw new BackendClientError(
+        "invalid_response",
+        "Backend returned an invalid development plan.",
       );
     }
     return response;
@@ -182,4 +214,29 @@ function isExplainCodeResult(value: unknown): value is ExplainCodeResult {
     value.key_points.every((point) => typeof point === "string") &&
     value.risks.every((risk) => typeof risk === "string")
   );
+}
+
+function isDevelopmentPlanResult(value: unknown): value is DevelopmentPlanResult {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "requirement_understanding" in value &&
+    "assumptions" in value &&
+    "affected_files" in value &&
+    "implementation_steps" in value &&
+    "validation_steps" in value &&
+    "risks" in value &&
+    "out_of_scope" in value &&
+    typeof value.requirement_understanding === "string" &&
+    isStringArray(value.assumptions) &&
+    isStringArray(value.affected_files) &&
+    isStringArray(value.implementation_steps) &&
+    isStringArray(value.validation_steps) &&
+    isStringArray(value.risks) &&
+    isStringArray(value.out_of_scope)
+  );
+}
+
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((item) => typeof item === "string");
 }

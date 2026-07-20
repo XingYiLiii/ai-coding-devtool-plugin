@@ -18,6 +18,10 @@
       {
         "command": "devpilot.explainCode",
         "title": "DevPilot: Explain Selected Code"
+      },
+      {
+        "command": "devpilot.generatePlan",
+        "title": "DevPilot: Generate Development Plan"
       }
     ]
   },
@@ -28,7 +32,7 @@
     "format:check": "prettier --check .",
     "format": "prettier --write .",
     "compile:test": "tsc -p tsconfig.test.json",
-    "test": "npm run compile:test && node --test out/test/backend-client.test.js && node --test out/test/backend-health.test.js && node --test out/test/explain-code-command.test.js"
+    "test": "npm run compile:test && node --test out/test/backend-client.test.js && node --test out/test/backend-health.test.js && node --test out/test/explain-code-command.test.js && node --test out/test/generate-plan-command.test.js"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
