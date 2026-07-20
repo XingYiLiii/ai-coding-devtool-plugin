@@ -1,5 +1,11 @@
 """Context engineering foundations."""
 
+from devtool_api.context.budgeting import (
+    ContextBudget,
+    ContextBudgeter,
+    ContextPrioritizer,
+    PriorityContextPrioritizer,
+)
 from devtool_api.context.collector import (
     ContextCollectionRequest,
     ContextCollectionResult,
@@ -14,14 +20,18 @@ from devtool_api.context.security import (
 )
 
 __all__ = [
+    "ContextBudget",
+    "ContextBudgeter",
     "ContextCollectionRequest",
     "ContextCollectionResult",
     "ContextCollector",
     "ContextMetadata",
+    "ContextPrioritizer",
     "ContextSecurityConfig",
     "ContextSecurityDecision",
     "ContextSecurityFilter",
     "FakeContextCollector",
     "FileContext",
+    "PriorityContextPrioritizer",
     "WorkspaceContext",
 ]
