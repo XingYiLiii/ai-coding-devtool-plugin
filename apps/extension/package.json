@@ -13,6 +13,14 @@
     "onStartupFinished"
   ],
   "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "devpilot.explainCode",
+        "title": "DevPilot: Explain Selected Code"
+      }
+    ]
+  },
   "scripts": {
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
@@ -20,7 +28,7 @@
     "format:check": "prettier --check .",
     "format": "prettier --write .",
     "compile:test": "tsc -p tsconfig.test.json",
-    "test": "npm run compile:test && node --test out/test/backend-client.test.js && node --test out/test/backend-health.test.js"
+    "test": "npm run compile:test && node --test out/test/backend-client.test.js && node --test out/test/backend-health.test.js && node --test out/test/explain-code-command.test.js"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

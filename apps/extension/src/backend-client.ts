@@ -4,6 +4,19 @@ export interface HealthResponse {
   status: string;
 }
 
+export interface ExplainCodeRequest {
+  code: string;
+  language: string;
+  metadata?: Record<string, string>;
+}
+
+export interface ExplainCodeResult {
+  summary: string;
+  explanation: string;
+  key_points: string[];
+  risks: string[];
+}
+
 export type BackendClientErrorKind =
   "backend" | "cancelled" | "invalid_response" | "network" | "timeout";
 
@@ -30,7 +43,8 @@ export interface BackendClientOptions {
 }
 
 export interface BackendRequestOptions {
-  method?: "GET";
+  method?: "GET" | "POST";
+  body?: unknown;
   signal?: AbortSignal;
 }
 
@@ -65,6 +79,24 @@ export class BackendClient {
     return response;
   }
 
+  public async explainCode(
+    request: ExplainCodeRequest,
+    signal?: AbortSignal,
+  ): Promise<ExplainCodeResult> {
+    const response = await this.request<unknown>("/api/v1/explanations", {
+      method: "POST",
+      body: request,
+      signal,
+    });
+    if (!isExplainCodeResult(response)) {
+      throw new BackendClientError(
+        "invalid_response",
+        "Backend returned an invalid code explanation.",
+      );
+    }
+    return response;
+  }
+
   public async request<T>(
     path: string,
     options: BackendRequestOptions = {},
@@ -76,6 +108,7 @@ export class BackendClient {
       controller.abort();
     }, this.timeoutMs);
     const abortFromCaller = () => controller.abort();
+    const hasBody = options.body !== undefined;
 
     options.signal?.addEventListener("abort", abortFromCaller, { once: true });
     if (options.signal?.aborted) {
@@ -85,6 +118,8 @@ export class BackendClient {
     try {
       const response = await this.fetchImplementation(`${this.baseUrl}${path}`, {
         method: options.method ?? "GET",
+        headers: hasBody ? { "Content-Type": "application/json" } : undefined,
+        body: hasBody ? JSON.stringify(options.body) : undefined,
         signal: controller.signal,
       });
       if (!response.ok) {
@@ -129,5 +164,22 @@ function isHealthResponse(value: unknown): value is HealthResponse {
     value !== null &&
     "status" in value &&
     typeof value.status === "string"
+  );
+}
+
+function isExplainCodeResult(value: unknown): value is ExplainCodeResult {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "summary" in value &&
+    "explanation" in value &&
+    "key_points" in value &&
+    "risks" in value &&
+    typeof value.summary === "string" &&
+    typeof value.explanation === "string" &&
+    Array.isArray(value.key_points) &&
+    Array.isArray(value.risks) &&
+    value.key_points.every((point) => typeof point === "string") &&
+    value.risks.every((risk) => typeof risk === "string")
   );
 }

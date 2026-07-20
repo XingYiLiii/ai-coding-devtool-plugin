@@ -39,6 +39,42 @@ test("returns a typed health response", async () => {
   assert.deepEqual(health, { status: "ok" });
 });
 
+test("posts a typed Explain Code request", async () => {
+  let requestedUrl = "";
+  let requestBody = "";
+  const fetchImplementation: FetchImplementation = async (input, init) => {
+    requestedUrl = input;
+    assert.equal(init?.method, "POST");
+    assert.deepEqual(init?.headers, { "Content-Type": "application/json" });
+    requestBody = String(init?.body);
+    return new Response(
+      JSON.stringify({
+        summary: "Prints a value.",
+        explanation: "Calls print.",
+        key_points: ["Uses a built-in."],
+        risks: [],
+      }),
+      { status: 200 },
+    );
+  };
+  const client = new BackendClient({
+    baseUrl: "http://127.0.0.1:8000",
+    fetchImplementation,
+  });
+
+  const result = await client.explainCode({
+    code: "print('ok')",
+    language: "python",
+  });
+
+  assert.equal(requestedUrl, "http://127.0.0.1:8000/api/v1/explanations");
+  assert.deepEqual(JSON.parse(requestBody), {
+    code: "print('ok')",
+    language: "python",
+  });
+  assert.equal(result.summary, "Prints a value.");
+});
+
 test("maps timeout to a backend client error", async () => {
   const client = new BackendClient({
     baseUrl: "http://127.0.0.1:8000",

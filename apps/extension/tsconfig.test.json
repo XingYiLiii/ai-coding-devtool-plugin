@@ -9,7 +9,9 @@
     "src/backend-client.ts",
     "src/backend-health-service.ts",
     "src/backend-status.ts",
+    "src/explain-code-command.ts",
     "test/backend-client.test.ts",
-    "test/backend-health.test.ts"
+    "test/backend-health.test.ts",
+    "test/explain-code-command.test.ts"
   ]
 }
