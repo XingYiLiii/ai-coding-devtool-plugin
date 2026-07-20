@@ -4,6 +4,11 @@ from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
 
+from devtool_api.change_review import (
+    ChangeReviewRequest,
+    ChangeReviewResult,
+    ReviewChangesUseCase,
+)
 from devtool_api.commit_message import (
     CommitMessageRequest,
     CommitMessageResult,
@@ -34,6 +39,7 @@ def create_app(
     explain_code_use_case: ExplainCodeUseCase | None = None,
     development_plan_use_case: GenerateDevelopmentPlanUseCase | None = None,
     commit_message_use_case: GenerateCommitMessageUseCase | None = None,
+    change_review_use_case: ReviewChangesUseCase | None = None,
 ) -> FastAPI:
     """Create the local backend application."""
     app = FastAPI(
@@ -161,6 +167,44 @@ def create_app(
                 detail="Commit Message is temporarily unavailable.",
             ) from None
 
+    @app.post(
+        "/api/v1/change-reviews",
+        response_model=ChangeReviewResult,
+        tags=["change-reviews"],
+    )
+    def review_changes(request: ChangeReviewRequest) -> ChangeReviewResult:
+        """Review one caller-supplied diff for evidence-backed issues."""
+        try:
+            workflow = (
+                change_review_use_case or _create_default_change_review_use_case()
+            )
+            return workflow.review(request)
+        except LLMConfigurationError:
+            raise HTTPException(
+                status_code=503,
+                detail="Change Review is not configured.",
+            ) from None
+        except LLMProviderTimeoutError:
+            raise HTTPException(
+                status_code=504,
+                detail="The AI provider timed out.",
+            ) from None
+        except LLMProviderError:
+            raise HTTPException(
+                status_code=502,
+                detail="The AI provider is unavailable.",
+            ) from None
+        except StructuredOutputError:
+            raise HTTPException(
+                status_code=502,
+                detail="The AI response could not be validated.",
+            ) from None
+        except PromptRegistryError:
+            raise HTTPException(
+                status_code=500,
+                detail="Change Review is temporarily unavailable.",
+            ) from None
+
     return app
 
 
@@ -183,6 +227,14 @@ def _create_default_development_plan_use_case() -> GenerateDevelopmentPlanUseCas
 def _create_default_commit_message_use_case() -> GenerateCommitMessageUseCase:
     """Create the configured Commit Message workflow on demand."""
     return GenerateCommitMessageUseCase(
+        provider=_create_default_provider(),
+        prompt_registry=_create_prompt_registry(),
+    )
+
+
+def _create_default_change_review_use_case() -> ReviewChangesUseCase:
+    """Create the configured Change Review workflow on demand."""
+    return ReviewChangesUseCase(
         provider=_create_default_provider(),
         prompt_registry=_create_prompt_registry(),
     )

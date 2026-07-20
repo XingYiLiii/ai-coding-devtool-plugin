@@ -1,0 +1,14 @@
+id: change_review
+version: v1
+template: |
+  Review the caller-supplied code diff for concrete, evidence-backed defects.
+  Diff:
+  {diff}
+  Optional context: {review_context}
+  Report only issues supported by the supplied diff or context. Do not treat style
+  preferences as bugs. If there are no clear issues, return an empty findings list.
+  Return valid JSON only. Include summary, findings, and testing_recommendations.
+  Each finding must include severity, file, line, problem, evidence, and suggestion.
+required_variables:
+  - diff
+  - review_context
