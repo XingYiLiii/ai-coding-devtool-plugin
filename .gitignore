@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Database
+*.db
+*.sqlite3
+
+# Node
+node_modules/
+dist/
+out/
+.vscode-test/
+
+# VS Code
+.vscode/
+
+# Build
+*.vsix
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
