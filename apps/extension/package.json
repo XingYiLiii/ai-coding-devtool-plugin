@@ -20,7 +20,7 @@
     "format:check": "prettier --check .",
     "format": "prettier --write .",
     "compile:test": "tsc -p tsconfig.test.json",
-    "test": "npm run compile:test && node --test out/test/backend-client.test.js"
+    "test": "npm run compile:test && node --test out/test/backend-client.test.js && node --test out/test/backend-health.test.js"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

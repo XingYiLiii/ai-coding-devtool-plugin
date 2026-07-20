@@ -4,5 +4,12 @@
     "outDir": "out",
     "rootDir": "."
   },
-  "include": ["src/backend-client.ts", "test/backend-client.test.ts"]
+  "exclude": ["node_modules", "out"],
+  "include": [
+    "src/backend-client.ts",
+    "src/backend-health-service.ts",
+    "src/backend-status.ts",
+    "test/backend-client.test.ts",
+    "test/backend-health.test.ts"
+  ]
 }
