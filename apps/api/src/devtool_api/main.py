@@ -4,6 +4,11 @@ from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
 
+from devtool_api.commit_message import (
+    CommitMessageRequest,
+    CommitMessageResult,
+    GenerateCommitMessageUseCase,
+)
 from devtool_api.development_plan import (
     DevelopmentPlanRequest,
     DevelopmentPlanResult,
@@ -28,6 +33,7 @@ from devtool_api.prompts import PromptRegistry, PromptRegistryError
 def create_app(
     explain_code_use_case: ExplainCodeUseCase | None = None,
     development_plan_use_case: GenerateDevelopmentPlanUseCase | None = None,
+    commit_message_use_case: GenerateCommitMessageUseCase | None = None,
 ) -> FastAPI:
     """Create the local backend application."""
     app = FastAPI(
@@ -117,6 +123,44 @@ def create_app(
                 detail="Development Plan is temporarily unavailable.",
             ) from None
 
+    @app.post(
+        "/api/v1/commit-messages",
+        response_model=CommitMessageResult,
+        tags=["commit-messages"],
+    )
+    def generate_commit_message(request: CommitMessageRequest) -> CommitMessageResult:
+        """Generate a commit message from caller-supplied change details."""
+        try:
+            workflow = (
+                commit_message_use_case or _create_default_commit_message_use_case()
+            )
+            return workflow.generate(request)
+        except LLMConfigurationError:
+            raise HTTPException(
+                status_code=503,
+                detail="Commit Message is not configured.",
+            ) from None
+        except LLMProviderTimeoutError:
+            raise HTTPException(
+                status_code=504,
+                detail="The AI provider timed out.",
+            ) from None
+        except LLMProviderError:
+            raise HTTPException(
+                status_code=502,
+                detail="The AI provider is unavailable.",
+            ) from None
+        except StructuredOutputError:
+            raise HTTPException(
+                status_code=502,
+                detail="The AI response could not be validated.",
+            ) from None
+        except PromptRegistryError:
+            raise HTTPException(
+                status_code=500,
+                detail="Commit Message is temporarily unavailable.",
+            ) from None
+
     return app
 
 
@@ -131,6 +175,14 @@ def _create_default_explain_code_use_case() -> ExplainCodeUseCase:
 def _create_default_development_plan_use_case() -> GenerateDevelopmentPlanUseCase:
     """Create the configured Development Plan workflow on demand."""
     return GenerateDevelopmentPlanUseCase(
+        provider=_create_default_provider(),
+        prompt_registry=_create_prompt_registry(),
+    )
+
+
+def _create_default_commit_message_use_case() -> GenerateCommitMessageUseCase:
+    """Create the configured Commit Message workflow on demand."""
+    return GenerateCommitMessageUseCase(
         provider=_create_default_provider(),
         prompt_registry=_create_prompt_registry(),
     )

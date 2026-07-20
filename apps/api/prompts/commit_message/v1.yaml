@@ -1,0 +1,12 @@
+id: commit_message
+version: v1
+template: |
+  Generate one {commit_style} commit message from the caller-supplied change details.
+  Diff summary: {diff_summary}
+  Changed files: {changed_files}
+  Return valid JSON only. Include subject, body, commit_type, breaking_change, and reasoning.
+  The subject must use Conventional Commits syntax and match commit_type.
+required_variables:
+  - diff_summary
+  - changed_files
+  - commit_style
