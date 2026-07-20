@@ -1,0 +1,13 @@
+id: development_plan
+version: v1
+template: |
+  Create a practical implementation plan for the following developer request.
+  Request: {request_description}
+  Project context summary: {project_context}
+  File summaries supplied by the caller: {file_summaries}
+  Return valid JSON only. Include the fields requirement_understanding, assumptions,
+  affected_files, implementation_steps, validation_steps, risks, and out_of_scope.
+required_variables:
+  - request_description
+  - project_context
+  - file_summaries
