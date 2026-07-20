@@ -1,0 +1,14 @@
+id: explain_code
+version: v1
+template: |
+  Explain the selected {language} code for a software developer.
+  File metadata: {metadata}
+  Selected code:
+  ```{language}
+  {code}
+  ```
+  Return valid JSON only. Include the fields summary, explanation, key_points, and risks.
+required_variables:
+  - code
+  - language
+  - metadata
