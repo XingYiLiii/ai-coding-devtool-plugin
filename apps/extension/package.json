@@ -3,6 +3,11 @@
   "displayName": "DevPilot",
   "description": "AI coding workflows for VS Code.",
   "version": "0.1.0",
+  "publisher": "devpilot-local",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/XingYiLiii/ai-coding-devtool-plugin.git"
+  },
   "engines": {
     "vscode": "^1.95.0"
   },
@@ -49,6 +54,7 @@
   },
   "scripts": {
     "compile": "tsc -p ./",
+    "package": "npm run compile && node -e \"require('fs').mkdirSync('dist', { recursive: true })\" && vsce package --out dist/devpilot.vsix",
     "watch": "tsc -watch -p ./",
     "lint": "eslint src --max-warnings=0",
     "format:check": "prettier --check .",
@@ -60,6 +66,7 @@
     "@eslint/js": "^10.0.1",
     "@types/node": "^22.10.2",
     "@types/vscode": "^1.95.0",
+    "@vscode/vsce": "^3.9.2",
     "eslint": "^10.7.0",
     "prettier": "^3.9.5",
     "typescript": "^5.7.3",

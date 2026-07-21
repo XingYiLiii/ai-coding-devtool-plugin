@@ -1,0 +1,16 @@
+.github
+.vscode
+.vscode-test
+src
+test
+out/test
+node_modules
+dist
+*.ts
+tsconfig*.json
+eslint.config.mjs
+.prettierrc.json
+package-lock.json
+out/src
+out/**/*.map
+.prettierignore

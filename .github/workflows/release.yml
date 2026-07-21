@@ -1,0 +1,31 @@
+name: Package Extension
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  package-extension:
+    name: Package VS Code extension
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/extension
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: apps/extension/package-lock.json
+      - run: npm ci
+      - run: npm run package
+      - uses: actions/upload-artifact@v4
+        with:
+          name: devpilot-extension-${{ github.ref_name }}
+          path: apps/extension/dist/*.vsix
+          if-no-files-found: error
