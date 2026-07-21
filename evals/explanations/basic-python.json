@@ -1,0 +1,15 @@
+{
+  "workflow": "explain_code",
+  "input": {
+    "code": "def is_even(value: int) -> bool:\n    return value % 2 == 0",
+    "language": "python",
+    "metadata": {
+      "path": "src/math_utils.py"
+    }
+  },
+  "quality_criteria": [
+    "States that the function returns whether the integer is even.",
+    "Explains the modulo comparison without inventing external dependencies.",
+    "Returns all required structured result fields."
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "workflow": "change_review",
+  "input": {
+    "diff": "diff --git a/src/api/users.py b/src/api/users.py\n@@ -10,0 +11,3 @@\n+def get_user(user_id: str):\n+    return repository.find(user_id)\n+",
+    "context": "The repository expects numeric user identifiers."
+  },
+  "quality_criteria": [
+    "Any finding identifies the relevant file and line with evidence from the fixture.",
+    "Flags missing numeric identifier validation only when grounded in the supplied context.",
+    "Does not report style-only observations as bugs.",
+    "Allows an empty findings list when no evidence-backed defect exists."
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "workflow": "commit_message",
+  "input": {
+    "diff_summary": "Add a GET health endpoint and its API test.",
+    "changed_files": [
+      "src/app/health.py",
+      "tests/test_health.py"
+    ],
+    "style": "Conventional Commits"
+  },
+  "quality_criteria": [
+    "Uses a Conventional Commits subject such as feat(api): add health endpoint.",
+    "Matches the endpoint and test changes without unrelated claims.",
+    "Keeps commit_type and breaking_change consistent with the subject."
+  ]
+}

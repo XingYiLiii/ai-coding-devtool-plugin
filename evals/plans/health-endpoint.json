@@ -1,0 +1,18 @@
+{
+  "workflow": "development_plan",
+  "input": {
+    "request_description": "Add a health endpoint that returns a simple status payload.",
+    "context": {
+      "project_summary": "A small FastAPI service with API routes and pytest tests.",
+      "file_summaries": [
+        "src/app/main.py creates the FastAPI application.",
+        "tests/test_health.py contains endpoint tests."
+      ]
+    }
+  },
+  "quality_criteria": [
+    "Includes implementation and validation steps.",
+    "Can reference the supplied application and test files, but does not invent unrelated files.",
+    "Separates assumptions, risks, and out-of-scope work."
+  ]
+}
