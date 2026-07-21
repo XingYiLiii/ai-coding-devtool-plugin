@@ -22,6 +22,14 @@
       {
         "command": "devpilot.generatePlan",
         "title": "DevPilot: Generate Development Plan"
+      },
+      {
+        "command": "devpilot.generateCommitMessage",
+        "title": "DevPilot: Generate Commit Message"
+      },
+      {
+        "command": "devpilot.reviewChanges",
+        "title": "DevPilot: Review Staged Changes"
       }
     ]
   },
@@ -32,7 +40,7 @@
     "format:check": "prettier --check .",
     "format": "prettier --write .",
     "compile:test": "tsc -p tsconfig.test.json",
-    "test": "npm run compile:test && node --test out/test/backend-client.test.js && node --test out/test/backend-health.test.js && node --test out/test/explain-code-command.test.js && node --test out/test/generate-plan-command.test.js"
+    "test": "npm run compile:test && node --test out/test/backend-client.test.js && node --test out/test/backend-health.test.js && node --test out/test/explain-code-command.test.js && node --test out/test/generate-plan-command.test.js && node --test out/test/git-context.test.js && node --test out/test/git-workflow-commands.test.js"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

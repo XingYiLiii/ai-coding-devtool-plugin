@@ -7,7 +7,10 @@ import {
   type ExplainCodeSelection,
 } from "./explain-code-command";
 import { registerGeneratePlanCommand } from "./generate-plan-command";
+import { GitContextCollector } from "./git-context";
+import { registerGitWorkflowCommands } from "./git-workflow-commands";
 import { getBackendStatusPresentation } from "./backend-status";
+import { VsCodeGitContextSource } from "./vscode-git-context-source";
 
 const outputChannelName = "AI Coding Devtool";
 const backendBaseUrl = "http://127.0.0.1:8000";
@@ -19,6 +22,7 @@ export function activate(context: vscode.ExtensionContext): void {
   );
   const backendClient = new BackendClient({ baseUrl: backendBaseUrl });
   const healthService = new BackendHealthService(backendClient);
+  const gitContextCollector = new GitContextCollector(new VsCodeGitContextSource());
 
   context.subscriptions.push(
     outputChannel,
@@ -41,6 +45,15 @@ export function activate(context: vscode.ExtensionContext): void {
           placeHolder: "For example: Add a profile endpoint.",
           ignoreFocusOut: true,
         }),
+      client: backendClient,
+      outputChannel,
+      showInformationMessage: (message) =>
+        void vscode.window.showInformationMessage(message),
+      showErrorMessage: (message) => void vscode.window.showErrorMessage(message),
+    }),
+    ...registerGitWorkflowCommands({
+      commands: vscode.commands,
+      collector: gitContextCollector,
       client: backendClient,
       outputChannel,
       showInformationMessage: (message) =>

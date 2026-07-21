@@ -11,9 +11,13 @@
     "src/backend-status.ts",
     "src/explain-code-command.ts",
     "src/generate-plan-command.ts",
+    "src/git-context.ts",
+    "src/git-workflow-commands.ts",
     "test/backend-client.test.ts",
     "test/backend-health.test.ts",
     "test/explain-code-command.test.ts",
-    "test/generate-plan-command.test.ts"
+    "test/generate-plan-command.test.ts",
+    "test/git-context.test.ts",
+    "test/git-workflow-commands.test.ts"
   ]
 }

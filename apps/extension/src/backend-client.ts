@@ -31,6 +31,39 @@ export interface DevelopmentPlanResult {
   out_of_scope: string[];
 }
 
+export interface CommitMessageRequest {
+  diff_summary: string;
+  changed_files: string[];
+  style?: string;
+}
+
+export interface CommitMessageResult {
+  subject: string;
+  body: string;
+  commit_type: string;
+  breaking_change: boolean;
+  reasoning: string;
+}
+
+export interface ChangeReviewRequest {
+  diff: string;
+  context?: string;
+}
+
+export interface ChangeReviewFinding {
+  severity: string;
+  file: string;
+  line: number;
+  problem: string;
+  evidence: string;
+  suggestion: string;
+}
+
+export interface ChangeReviewResult {
+  summary: string;
+  findings: ChangeReviewFinding[];
+  testing_recommendations: string[];
+}
 export type BackendClientErrorKind =
   "backend" | "cancelled" | "invalid_response" | "network" | "timeout";
 
@@ -129,6 +162,41 @@ export class BackendClient {
     return response;
   }
 
+  public async generateCommitMessage(
+    request: CommitMessageRequest,
+    signal?: AbortSignal,
+  ): Promise<CommitMessageResult> {
+    const response = await this.request<unknown>("/api/v1/commit-messages", {
+      method: "POST",
+      body: request,
+      signal,
+    });
+    if (!isCommitMessageResult(response)) {
+      throw new BackendClientError(
+        "invalid_response",
+        "Backend returned an invalid commit message.",
+      );
+    }
+    return response;
+  }
+
+  public async reviewChanges(
+    request: ChangeReviewRequest,
+    signal?: AbortSignal,
+  ): Promise<ChangeReviewResult> {
+    const response = await this.request<unknown>("/api/v1/change-reviews", {
+      method: "POST",
+      body: request,
+      signal,
+    });
+    if (!isChangeReviewResult(response)) {
+      throw new BackendClientError(
+        "invalid_response",
+        "Backend returned an invalid change review.",
+      );
+    }
+    return response;
+  }
   public async request<T>(
     path: string,
     options: BackendRequestOptions = {},
@@ -239,4 +307,54 @@ function isDevelopmentPlanResult(value: unknown): value is DevelopmentPlanResult
 
 function isStringArray(value: unknown): value is string[] {
   return Array.isArray(value) && value.every((item) => typeof item === "string");
+}
+
+function isCommitMessageResult(value: unknown): value is CommitMessageResult {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "subject" in value &&
+    "body" in value &&
+    "commit_type" in value &&
+    "breaking_change" in value &&
+    "reasoning" in value &&
+    typeof value.subject === "string" &&
+    typeof value.body === "string" &&
+    typeof value.commit_type === "string" &&
+    typeof value.breaking_change === "boolean" &&
+    typeof value.reasoning === "string"
+  );
+}
+
+function isChangeReviewResult(value: unknown): value is ChangeReviewResult {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "summary" in value &&
+    "findings" in value &&
+    "testing_recommendations" in value &&
+    typeof value.summary === "string" &&
+    Array.isArray(value.findings) &&
+    value.findings.every(isChangeReviewFinding) &&
+    isStringArray(value.testing_recommendations)
+  );
+}
+
+function isChangeReviewFinding(value: unknown): value is ChangeReviewFinding {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "severity" in value &&
+    "file" in value &&
+    "line" in value &&
+    "problem" in value &&
+    "evidence" in value &&
+    "suggestion" in value &&
+    typeof value.severity === "string" &&
+    typeof value.file === "string" &&
+    typeof value.line === "number" &&
+    typeof value.problem === "string" &&
+    typeof value.evidence === "string" &&
+    typeof value.suggestion === "string"
+  );
 }
