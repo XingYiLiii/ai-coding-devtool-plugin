@@ -121,6 +121,7 @@ A concise three-minute interview demo is available in [docs/demo-guide.md](docs/
 - [Demo Guide](docs/demo-guide.md)
 - [Security and Privacy](docs/security.md)
 - [Offline Evaluation Fixtures and Rubrics](evals/README.md)
+- [v0.1.0 Release Notes](CHANGELOG.md)
 
 ## Roadmap
 
