@@ -2,14 +2,22 @@
 
 import type { BackendHealthStatus } from "./backend-health-service";
 
+export type BackendStatus = BackendHealthStatus | "checking";
+
 export interface BackendStatusPresentation {
   text: string;
   tooltip: string;
 }
 
 export function getBackendStatusPresentation(
-  status: BackendHealthStatus,
+  status: BackendStatus,
 ): BackendStatusPresentation {
+  if (status === "checking") {
+    return {
+      text: "DevPilot: Checking...",
+      tooltip: "Checking the local backend connection.",
+    };
+  }
   if (status === "healthy") {
     return {
       text: "DevPilot: Ready",

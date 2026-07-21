@@ -7,6 +7,8 @@ import type {
   CommitMessageResult,
 } from "./backend-client";
 import type { GitContextCollectionResult } from "./git-context";
+import { writeMarkdownResult } from "./output-format";
+import { getBackendErrorMessage } from "./user-messages";
 
 export const generateCommitMessageCommandId = "devpilot.generateCommitMessage";
 export const reviewChangesCommandId = "devpilot.reviewChanges";
@@ -54,10 +56,12 @@ export function registerGitWorkflowCommands(
           changed_files: collection.context.changedFiles,
         });
         writeCommitMessage(dependencies.outputChannel, result);
-        dependencies.showInformationMessage("Commit message suggestion generated.");
-      } catch {
+        dependencies.showInformationMessage(
+          "DevPilot: Commit message suggestion generated.",
+        );
+      } catch (error) {
         dependencies.showErrorMessage(
-          "Unable to generate a commit message suggestion.",
+          getBackendErrorMessage(error, "generate a commit message suggestion"),
         );
       }
     }),
@@ -72,9 +76,11 @@ export function registerGitWorkflowCommands(
           diff: collection.context.diff,
         });
         writeChangeReview(dependencies.outputChannel, result);
-        dependencies.showInformationMessage("Change review generated.");
-      } catch {
-        dependencies.showErrorMessage("Unable to review staged changes.");
+        dependencies.showInformationMessage("DevPilot: Change review generated.");
+      } catch (error) {
+        dependencies.showErrorMessage(
+          getBackendErrorMessage(error, "review staged changes"),
+        );
       }
     }),
   ];
@@ -87,7 +93,7 @@ function hasReadyContext(
   if (collection.kind === "ready") {
     return true;
   }
-  dependencies.showInformationMessage(collection.message);
+  dependencies.showInformationMessage(`DevPilot: ${collection.message}`);
   return false;
 }
 
@@ -95,33 +101,32 @@ function writeCommitMessage(
   outputChannel: GitWorkflowOutputChannel,
   result: CommitMessageResult,
 ): void {
-  outputChannel.appendLine("Commit Message Suggestion");
-  outputChannel.appendLine(`Subject: ${result.subject}`);
-  outputChannel.appendLine(`Commit type: ${result.commit_type}`);
-  outputChannel.appendLine(`Body: ${result.body}`);
-  outputChannel.show(true);
+  writeMarkdownResult(outputChannel, "Commit Message Suggestion", [
+    { heading: "Subject", items: [result.subject] },
+    { heading: "Commit type", items: [result.commit_type] },
+    { heading: "Body", items: [result.body] },
+  ]);
 }
 
 function writeChangeReview(
   outputChannel: GitWorkflowOutputChannel,
   result: ChangeReviewResult,
 ): void {
-  outputChannel.appendLine("Change Review");
-  outputChannel.appendLine(`Summary: ${result.summary}`);
-  outputChannel.appendLine("Findings:");
-  if (!result.findings.length) {
-    outputChannel.appendLine("- No clear findings.");
-  }
-  for (const finding of result.findings) {
-    outputChannel.appendLine(
-      `- [${finding.severity}] ${finding.file}:${finding.line} ${finding.problem}`,
-    );
-    outputChannel.appendLine(`  Evidence: ${finding.evidence}`);
-    outputChannel.appendLine(`  Suggestion: ${finding.suggestion}`);
-  }
-  outputChannel.appendLine("Testing recommendations:");
-  for (const recommendation of result.testing_recommendations) {
-    outputChannel.appendLine(`- ${recommendation}`);
-  }
-  outputChannel.show(true);
+  const findings = result.findings.flatMap((finding) => [
+    `[${finding.severity}] ${finding.file}:${finding.line} ${finding.problem}`,
+    `Evidence: ${finding.evidence}`,
+    `Suggestion: ${finding.suggestion}`,
+  ]);
+  writeMarkdownResult(outputChannel, "Change Review", [
+    { heading: "Summary", items: [result.summary] },
+    {
+      heading: "Findings",
+      items: findings,
+      emptyText: "No clear findings.",
+    },
+    {
+      heading: "Testing recommendations",
+      items: result.testing_recommendations,
+    },
+  ]);
 }

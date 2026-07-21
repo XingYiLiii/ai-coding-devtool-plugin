@@ -13,16 +13,17 @@ import { getBackendStatusPresentation } from "./backend-status";
 import { VsCodeGitContextSource } from "./vscode-git-context-source";
 
 const outputChannelName = "AI Coding Devtool";
-const backendBaseUrl = "http://127.0.0.1:8000";
+const defaultBackendUrl = "http://127.0.0.1:8000";
 
 export function activate(context: vscode.ExtensionContext): void {
   const outputChannel = vscode.window.createOutputChannel(outputChannelName);
   const statusBarItem = vscode.window.createStatusBarItem(
     vscode.StatusBarAlignment.Left,
   );
-  const backendClient = new BackendClient({ baseUrl: backendBaseUrl });
+  const backendClient = new BackendClient({ baseUrl: getBackendUrl() });
   const healthService = new BackendHealthService(backendClient);
   const gitContextCollector = new GitContextCollector(new VsCodeGitContextSource());
+  const checkingPresentation = getBackendStatusPresentation("checking");
 
   context.subscriptions.push(
     outputChannel,
@@ -62,8 +63,18 @@ export function activate(context: vscode.ExtensionContext): void {
     }),
   );
   outputChannel.appendLine("AI Coding Devtool extension activated.");
+  statusBarItem.text = checkingPresentation.text;
+  statusBarItem.tooltip = checkingPresentation.tooltip;
   statusBarItem.show();
   void updateBackendStatus(statusBarItem, healthService);
+}
+
+function getBackendUrl(): string {
+  const configuredUrl = vscode.workspace
+    .getConfiguration("devpilot")
+    .get<string>("backendUrl", defaultBackendUrl)
+    .trim();
+  return configuredUrl || defaultBackendUrl;
 }
 
 function getActiveSelection(): ExplainCodeSelection | undefined {

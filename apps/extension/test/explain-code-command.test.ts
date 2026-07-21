@@ -79,7 +79,7 @@ test("warns when no code selection is available", async () => {
 
   await harness.callback?.();
 
-  assert.equal(warning, "Select code to explain first.");
+  assert.equal(warning, "DevPilot: Select code to explain first.");
   assert.equal(calls, 0);
 });
 
@@ -117,12 +117,17 @@ test("maps a successful API response to the Output Channel", async () => {
     metadata: { path: "C:/workspace/main.py" },
   });
   assert.deepEqual(lines, [
-    "Explain Code",
-    "Summary: Prints a value.",
-    "Explanation: Calls print.",
-    "Key points:",
+    "# DevPilot: Explain Code",
+    "---",
+    "## Summary",
+    "- Prints a value.",
+    "## Explanation",
+    "- Calls print.",
+    "## Key points",
     "- Uses a built-in.",
-    "Risks:",
+    "## Risks",
+    "- No clear risks.",
+    "",
   ]);
-  assert.equal(information, "Code explanation generated.");
+  assert.equal(information, "DevPilot: Code explanation generated.");
 });

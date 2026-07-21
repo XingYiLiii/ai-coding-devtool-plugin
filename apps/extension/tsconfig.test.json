@@ -9,6 +9,8 @@
     "src/backend-client.ts",
     "src/backend-health-service.ts",
     "src/backend-status.ts",
+    "src/output-format.ts",
+    "src/user-messages.ts",
     "src/explain-code-command.ts",
     "src/generate-plan-command.ts",
     "src/git-context.ts",
@@ -18,6 +20,8 @@
     "test/explain-code-command.test.ts",
     "test/generate-plan-command.test.ts",
     "test/git-context.test.ts",
-    "test/git-workflow-commands.test.ts"
+    "test/git-workflow-commands.test.ts",
+    "test/user-messages.test.ts",
+    "test/output-format.test.ts"
   ]
 }

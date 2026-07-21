@@ -82,7 +82,7 @@ test("does not call the backend when the user cancels input", async () => {
   await harness.callback?.();
 
   assert.equal(calls, 0);
-  assert.equal(information, "Development plan generation cancelled.");
+  assert.equal(information, "DevPilot: Development plan generation cancelled.");
 });
 
 test("maps the user request and displays a successful development plan", async () => {
@@ -115,20 +115,23 @@ test("maps the user request and displays a successful development plan", async (
     request_description: "Add a profile endpoint.",
   });
   assert.deepEqual(lines, [
-    "Development Plan",
-    "Requirement understanding: Add a profile endpoint.",
-    "Assumptions:",
+    "# DevPilot: Development Plan",
+    "---",
+    "## Requirement understanding",
+    "- Add a profile endpoint.",
+    "## Assumptions",
     "- Authentication exists.",
-    "Affected files:",
+    "## Affected files",
     "- src/api/profile.py",
-    "Implementation steps:",
+    "## Implementation steps",
     "- Add the route.",
-    "Validation steps:",
+    "## Validation steps",
     "- Add an API test.",
-    "Risks:",
+    "## Risks",
     "- Authentication contract may change.",
-    "Out of scope:",
+    "## Out of scope",
     "- Frontend changes.",
+    "",
   ]);
-  assert.equal(information, "Development plan generated.");
+  assert.equal(information, "DevPilot: Development plan generated.");
 });

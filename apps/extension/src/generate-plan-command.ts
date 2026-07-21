@@ -1,6 +1,8 @@
 /** Command logic for generating a development plan from one user request. */
 
 import type { DevelopmentPlanRequest, DevelopmentPlanResult } from "./backend-client";
+import { writeMarkdownResult } from "./output-format";
+import { getBackendErrorMessage } from "./user-messages";
 
 export const generatePlanCommandId = "devpilot.generatePlan";
 
@@ -34,7 +36,9 @@ export function registerGeneratePlanCommand(
   return dependencies.commands.registerCommand(generatePlanCommandId, async () => {
     const requestDescription = await dependencies.getRequestDescription();
     if (!requestDescription?.trim()) {
-      dependencies.showInformationMessage("Development plan generation cancelled.");
+      dependencies.showInformationMessage(
+        "DevPilot: Development plan generation cancelled.",
+      );
       return;
     }
 
@@ -43,9 +47,11 @@ export function registerGeneratePlanCommand(
         request_description: requestDescription,
       });
       writeDevelopmentPlan(dependencies.outputChannel, result);
-      dependencies.showInformationMessage("Development plan generated.");
-    } catch {
-      dependencies.showErrorMessage("Unable to generate a development plan.");
+      dependencies.showInformationMessage("DevPilot: Development plan generated.");
+    } catch (error) {
+      dependencies.showErrorMessage(
+        getBackendErrorMessage(error, "generate a development plan"),
+      );
     }
   });
 }
@@ -54,26 +60,16 @@ function writeDevelopmentPlan(
   outputChannel: DevelopmentPlanOutputChannel,
   result: DevelopmentPlanResult,
 ): void {
-  outputChannel.appendLine("Development Plan");
-  outputChannel.appendLine(
-    `Requirement understanding: ${result.requirement_understanding}`,
-  );
-  writeList(outputChannel, "Assumptions", result.assumptions);
-  writeList(outputChannel, "Affected files", result.affected_files);
-  writeList(outputChannel, "Implementation steps", result.implementation_steps);
-  writeList(outputChannel, "Validation steps", result.validation_steps);
-  writeList(outputChannel, "Risks", result.risks);
-  writeList(outputChannel, "Out of scope", result.out_of_scope);
-  outputChannel.show(true);
-}
-
-function writeList(
-  outputChannel: DevelopmentPlanOutputChannel,
-  heading: string,
-  items: string[],
-): void {
-  outputChannel.appendLine(`${heading}:`);
-  for (const item of items) {
-    outputChannel.appendLine(`- ${item}`);
-  }
+  writeMarkdownResult(outputChannel, "Development Plan", [
+    {
+      heading: "Requirement understanding",
+      items: [result.requirement_understanding],
+    },
+    { heading: "Assumptions", items: result.assumptions },
+    { heading: "Affected files", items: result.affected_files },
+    { heading: "Implementation steps", items: result.implementation_steps },
+    { heading: "Validation steps", items: result.validation_steps },
+    { heading: "Risks", items: result.risks, emptyText: "No clear risks." },
+    { heading: "Out of scope", items: result.out_of_scope },
+  ]);
 }

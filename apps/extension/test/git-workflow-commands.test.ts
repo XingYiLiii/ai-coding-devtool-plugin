@@ -104,10 +104,15 @@ test("maps staged context to the Commit Message API and displays the suggestion"
     changed_files: ["src/main.py"],
   });
   assert.deepEqual(lines, [
-    "Commit Message Suggestion",
-    "Subject: feat: add output",
-    "Commit type: feat",
-    "Body: Add console output.",
+    "# DevPilot: Commit Message Suggestion",
+    "---",
+    "## Subject",
+    "- feat: add output",
+    "## Commit type",
+    "- feat",
+    "## Body",
+    "- Add console output.",
+    "",
   ]);
 });
 
@@ -140,7 +145,7 @@ test("shows a friendly message instead of calling the backend without staged cha
   await harness.callbacks.get(generateCommitMessageCommandId)?.();
 
   assert.equal(calls, 0);
-  assert.equal(information, "No staged changes were found.");
+  assert.equal(information, "DevPilot: No staged changes were found.");
 });
 
 test("maps staged context to Change Review and displays empty findings", async () => {
@@ -172,11 +177,14 @@ test("maps staged context to Change Review and displays empty findings", async (
     diff: "diff --git a/src/main.py b/src/main.py\n+print('ok')",
   });
   assert.deepEqual(lines, [
-    "Change Review",
-    "Summary: No clear defects.",
-    "Findings:",
+    "# DevPilot: Change Review",
+    "---",
+    "## Summary",
+    "- No clear defects.",
+    "## Findings",
     "- No clear findings.",
-    "Testing recommendations:",
+    "## Testing recommendations",
     "- Run the unit tests.",
+    "",
   ]);
 });
